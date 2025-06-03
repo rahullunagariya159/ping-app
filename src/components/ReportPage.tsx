@@ -14,15 +14,16 @@ const ReportPage: React.FC = () => {
     const timersRef = useRef<{ [id: string]: NodeJS.Timeout }>({});
 
     useEffect(() => {
-        // Clear any existing timers
+        // Clear old intervals
         Object.values(timersRef.current).forEach(clearInterval);
         timersRef.current = {};
 
-        // Set up timers only for running tests
+        // Set new intervals only for running tests
         tests.forEach((test: PingTest) => {
             if (test.isRunning) {
                 const timer = setInterval(async () => {
                     const result = await pingURL(test.url);
+
                     setTests((prev: PingTest[]) =>
                         prev.map((t: PingTest) =>
                             t.id === test.id
@@ -37,8 +38,7 @@ const ReportPage: React.FC = () => {
                                         minute: '2-digit',
                                         second: '2-digit',
                                         hour12: true,
-                                    }).replace(',', '')
-                                        .replace(' at', ' @'),
+                                    }).replace(',', '').replace(' at', ' @'),
                                 }
                                 : t
                         )
@@ -49,19 +49,57 @@ const ReportPage: React.FC = () => {
             }
         });
 
+        // Cleanup on unmount
         return () => {
             Object.values(timersRef.current).forEach(clearInterval);
+            timersRef.current = {};
         };
-    }, [tests]);
+    }, []);
 
     const handleAction = (id: string, action: 'pause' | 'play') => {
+        const isPlay = action === 'play';
+
+        if (!isPlay) {
+            clearInterval(timersRef.current[id]);
+            delete timersRef.current[id];
+        }
+
         setTests((prev: PingTest[]) =>
             prev.map((t: PingTest) =>
-                t.id === id
-                    ? { ...t, isRunning: action === 'play' }
-                    : t
+                t.id === id ? { ...t, isRunning: isPlay } : t
             )
         );
+
+        if (isPlay) {
+            const test = tests.find((t: PingTest) => t.id === id);
+            if (!test) return;
+
+            const timer = setInterval(async () => {
+                const result = await pingURL(test.url);
+
+                setTests((prev: PingTest[]) =>
+                    prev.map((t: PingTest) =>
+                        t.id === test.id
+                            ? {
+                                ...t,
+                                results: [result, ...t.results.slice(0, 4)],
+                                lastExecuted: new Date().toLocaleString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    hour: 'numeric',
+                                    minute: '2-digit',
+                                    second: '2-digit',
+                                    hour12: true,
+                                }).replace(',', '').replace(' at', ' @'),
+                            }
+                            : t
+                    )
+                );
+            }, test.interval * 1000);
+
+            timersRef.current[id] = timer;
+        }
     };
 
     // Open modal and set which test is requested for deletion

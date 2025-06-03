@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/ping-app/static/css/main.e5cdda46.css",
+    "main.js": "/ping-app/static/js/main.7da2867b.js",
+    "static/js/453.09ba00b7.chunk.js": "/ping-app/static/js/453.09ba00b7.chunk.js",
+    "index.html": "/ping-app/index.html",
+    "main.e5cdda46.css.map": "/ping-app/static/css/main.e5cdda46.css.map",
+    "main.7da2867b.js.map": "/ping-app/static/js/main.7da2867b.js.map",
+    "453.09ba00b7.chunk.js.map": "/ping-app/static/js/453.09ba00b7.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e5cdda46.css",
+    "static/js/main.7da2867b.js"
+  ]
+}

@@ -1,26 +1,40 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import { PingProvider } from './context/PingContext';
+import AddTestForm from './components/AddTestForm';
+import ReportPage from './components/ReportPage';
+import { Button } from 'antd';
+import { Container, ButtonGroup } from './AppStyle';
+import { Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 
-function App() {
+const App: React.FC = () => {
+  const [view, setView] = useState<'add' | 'report'>('add');
+  const location = useLocation();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <PingProvider>
+      <Container>
+        <ButtonGroup>
+          <Link to="/add">
+            <Button type={location.pathname === '/add' ? 'primary' : 'default'}>
+              Add New Ping Test
+            </Button>
+          </Link>
+          <Link to="/report">
+            <Button type={location.pathname === '/report' ? 'primary' : 'default'}>
+              View Report
+            </Button>
+          </Link>
+        </ButtonGroup>
+
+        <Routes>
+          <Route path="/" element={<Navigate to="/add" replace />} />
+          <Route path="/add" element={<AddTestForm />} />
+          <Route path="/report" element={<ReportPage />} />
+          <Route path="*" element={<Navigate to="/add" replace />} />
+        </Routes>
+      </Container>
+    </PingProvider>
   );
-}
+};
 
 export default App;
